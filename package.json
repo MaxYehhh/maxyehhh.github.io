@@ -1,0 +1,11 @@
+{
+  "name": "resume-generator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "generate": "node generate.js"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  }
+}

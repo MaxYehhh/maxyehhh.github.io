@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{NAME}}</title>
+    <meta name="description" content="{{NAME}} 個人履歷">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <nav>
+        <div class="nav-links">
+            <a href="#about">👤 關於</a>
+            <a href="#education">🎓 學歷</a>
+            <a href="#experience">💼 經歷</a>
+            <a href="#skills">⚡ 技能</a>
+            <a href="#contact">✉️ 聯絡</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+
+    <section class="hero">
+        <h1>{{NAME}}</h1>
+        <p class="tagline">{{TAGLINE}}</p>
+    </section>
+
+    <section id="about">
+        <h2>👤 關於我</h2>
+        {{ABOUT}}
+    </section>
+
+    <section id="education">
+        <h2>🎓 學歷</h2>
+        <ul class="entry-list">
+            {{EDUCATION}}
+        </ul>
+    </section>
+
+    <section id="experience">
+        <h2>💼 工作經歷</h2>
+        <ul class="entry-list">
+            {{EXPERIENCE}}
+        </ul>
+    </section>
+
+    <section id="skills">
+        <h2>⚡ 核心技能</h2>
+        <div class="skills-grid">
+            {{SKILLS}}
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>✉️ 聯絡方式</h2>
+        <div class="contact-links">
+            {{CONTACT}}
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>
