@@ -1,3 +1,10 @@
 [
-  { "notionPageId": "31b6ae72525580599facd4cdf650e7dc", "outputPath": "resume/index.html" }
+  {
+    "notionPageId": "31b6ae72525580599facd4cdf650e7dc",
+    "outputPath": "resume/index.html"
+  },
+  {
+    "notionPageId": "31b6ae72525580919efbd7de221e2fba",
+    "outputPath": "resume/game/index.html"
+  }
 ]
