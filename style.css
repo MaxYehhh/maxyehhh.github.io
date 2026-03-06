@@ -63,7 +63,7 @@ nav {
     opacity: 1;
 }
 
-#lang-btn {
+.pdf-btn {
     background: none;
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -76,7 +76,7 @@ nav {
     white-space: nowrap;
 }
 
-#lang-btn:hover {
+.pdf-btn:hover {
     border-color: var(--color);
 }
 
@@ -268,5 +268,56 @@ h2 {
     .skills-grid {
         grid-template-columns: 1fr;
         gap: 24px;
+    }
+}
+
+/* ── Print / PDF ── */
+
+@media print {
+    @page {
+        size: A4;
+        margin: 2cm;
+    }
+
+    header,
+    .pdf-btn {
+        display: none !important;
+    }
+
+    body {
+        padding: 0;
+        font-size: 12pt;
+    }
+
+    main {
+        padding: 0;
+        max-width: 100%;
+    }
+
+    .hero {
+        margin-bottom: 24pt;
+    }
+
+    .hero h1 {
+        font-size: 28pt;
+    }
+
+    section {
+        margin-bottom: 16pt;
+        page-break-inside: avoid;
+    }
+
+    h2 {
+        font-size: 14pt;
+    }
+
+    .entry,
+    .skill-group {
+        page-break-inside: avoid;
+    }
+
+    a {
+        color: var(--color);
+        text-decoration: none;
     }
 }

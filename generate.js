@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
-const PAGE_ID = '31b6ae72525580599facd4cdf650e7dc';
 
 function toText(richText) {
   if (!richText || !richText.length) return '';
@@ -38,14 +37,14 @@ async function fetchBlocks(blockId) {
   return blocks;
 }
 
-async function main() {
+async function generateResume(notionPageId, outputPath) {
   // Get page title
-  const page = await notion.pages.retrieve({ page_id: PAGE_ID });
+  const page = await notion.pages.retrieve({ page_id: notionPageId });
   const titleProp = Object.values(page.properties).find(p => p.type === 'title');
   const name = titleProp ? toText(titleProp.title) : '';
 
   // Fetch blocks
-  const blocks = await fetchBlocks(PAGE_ID);
+  const blocks = await fetchBlocks(notionPageId);
 
   const data = {
     name,
@@ -64,11 +63,9 @@ async function main() {
   for (const block of blocks) {
     const type = block.type;
 
-    // H2 → section marker
     if (type === 'heading_2') {
       const text = toText(block.heading_2.rich_text).trim();
       currentSkillGroup = null;
-
       if (sectionMatch(text, ['關於', 'about'])) {
         currentSection = 'about';
       } else if (sectionMatch(text, ['學歷', 'education'])) {
@@ -85,7 +82,6 @@ async function main() {
       continue;
     }
 
-    // Paragraph → tagline (first one before any section)
     if (type === 'paragraph') {
       const text = toText(block.paragraph.rich_text).trim();
       if (!text) continue;
@@ -98,11 +94,9 @@ async function main() {
       continue;
     }
 
-    // Bullet list items
     if (type === 'bulleted_list_item') {
       const text = toText(block.bulleted_list_item.rich_text).trim();
       if (!text) continue;
-
       if (currentSection === 'about') {
         data.about.push(text);
       } else if (currentSection === 'education') {
@@ -110,7 +104,6 @@ async function main() {
       } else if (currentSection === 'experience') {
         data.experience.push(text);
       } else if (currentSection === 'skills') {
-        // Level-1 bullet = category name
         currentSkillGroup = { category: text, items: [] };
         data.skills.push(currentSkillGroup);
       } else if (currentSection === 'contact') {
@@ -118,16 +111,9 @@ async function main() {
       }
       continue;
     }
-
-    // Nested bullet (level-2) → skill items
-    if (type === 'bulleted_list_item' && currentSection === 'skills') {
-      // handled above; nested items come from children
-      continue;
-    }
   }
 
   // Fetch nested children for skill groups
-  // (Notion API returns nested bullets as children of parent bullets)
   for (const block of blocks) {
     if (block.type === 'bulleted_list_item' && block.has_children) {
       const parentText = toText(block.bulleted_list_item.rich_text).trim();
@@ -144,11 +130,15 @@ async function main() {
     }
   }
 
-  // Build HTML
+  // Ensure output directory exists
+  const outDir = path.dirname(path.join(__dirname, outputPath));
+  fs.mkdirSync(outDir, { recursive: true });
+
+  // Build and write HTML
   const template = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf-8');
   const html = buildHtml(template, data);
-  fs.writeFileSync(path.join(__dirname, 'index.html'), html, 'utf-8');
-  console.log('Done: index.html generated');
+  fs.writeFileSync(path.join(__dirname, outputPath), html, 'utf-8');
+  console.log(`Done: ${outputPath}`);
 }
 
 function buildHtml(template, data) {
@@ -173,7 +163,6 @@ function buildHtml(template, data) {
 
   const contactHtml = data.contact.map(c => {
     const cl = c.toLowerCase();
-    // Extract value after colon (e.g. "Email：foo@bar.com" → "foo@bar.com")
     const val = c.includes('：') ? c.split('：').slice(1).join('：').trim()
               : c.includes(':') ? c.split(':').slice(1).join(':').trim()
               : c.trim();
@@ -203,6 +192,13 @@ function buildHtml(template, data) {
     .replace('{{EXPERIENCE}}', experienceHtml)
     .replace('{{SKILLS}}', skillsHtml)
     .replace('{{CONTACT}}', contactHtml);
+}
+
+async function main() {
+  const resumes = JSON.parse(fs.readFileSync(path.join(__dirname, 'resumes.json'), 'utf-8'));
+  for (const { notionPageId, outputPath } of resumes) {
+    await generateResume(notionPageId, outputPath);
+  }
 }
 
 main().catch(err => {
